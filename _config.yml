@@ -17,7 +17,7 @@ data_edit_url: http://prose.io/#tajstat/sdg-site-tajikistan/edit/develop/data/in
 # URL for the "Edit Metadata" button on indicators.
 metadata_edit_url: http://prose.io/#tajstat/sdg-site-tajikistan/edit/develop/meta/[id].md
 #
-# The list of languages that are translated. The first one is the default.
+# The  list of languages that are translated. The first one is the default.
 languages:
   - en
   - ru
