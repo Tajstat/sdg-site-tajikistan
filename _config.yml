@@ -68,8 +68,8 @@ email_contacts:
 # International Support
 # Eg name: Australia and adjective: Australian
 country:
-  name: Australia
-  adjective: Australian
+  name: Tajikistan
+  adjective: Tajik
 
 # Optionally set a title/body for the frontpage banner. The defaults below point to a standard
 # translation, but feel free to change it as needed.
@@ -78,7 +78,7 @@ frontpage_introduction_banner:
   description: frontpage.intro_body
 
 frontpage_goals_grid:
-  title: Our data for Sustainable Development Goal indicators
+  title: Tajikistan data for Sustainable Development Goal indicators
   description: Click on each goal for our Sustainable Development Goal global indicator data.
 
 frontpage_cards:
@@ -187,7 +187,7 @@ custom_js:
 # Specify the format of the language toggles. Choices are:
 # "dropdown", "links", or "none"
 header_language_toggle: dropdown
-footer_language_toggle: none
+footer_language_toggle: links
 
 # Configure the header style.
 header:
