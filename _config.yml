@@ -61,9 +61,9 @@ analytics:
 
 # Replace the email addresses below.
 email_contacts:
-  questions: test@example.com
-  suggestions: test@example.com
-  functional: test@example.com
+  questions: stat@tojikiston.com
+  suggestions: stat@tojikiston.com
+  functional: stat@tojikiston.com
 
 # International Support
 # Eg name: Australia and adjective: Australian
