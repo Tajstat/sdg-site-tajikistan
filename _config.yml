@@ -76,10 +76,11 @@ country:
 frontpage_introduction_banner:
   title: frontpage.intro_title
   description: frontpage.intro_body
-
+  
+#Tajikistan data for Sustainable Development Goal indicators
 frontpage_goals_grid:
-  title: Tajikistan data for Sustainable Development Goal indicators
-  description: Click on each goal for our Sustainable Development Goal global indicator data.
+  title: custom.frontpage_heading 
+  description: custom.frontpage_instructions
 
 frontpage_cards:
   - title: frontpage.download_all
