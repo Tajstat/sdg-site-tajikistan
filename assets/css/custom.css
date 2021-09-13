@@ -1,6 +1,23 @@
 .goal-tiles #goal-9,
 .goal-tiles .goal-icon-9 {
-  background-color: #AD6925;
-width:100 px;
+  background-color: transparent;
+}
 
+.goal-tiles #goal-8,
+.goal-tiles .goal-icon-8 {
+  background-color: transparent;
+}
+
+.goal-tiles #goal-3,
+.goal-tiles .goal-icon-3 {
+  background-color: transparent;
+}
+
+
+.goal-tiles .goal-icon-4 {
+  background-color: transparent;
+}
+
+.goal-icon-6 {
+  background-color: transparent;
 }
