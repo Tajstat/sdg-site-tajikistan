@@ -201,7 +201,7 @@ header:
 # Specify whether the Series disaggregation should be a toggle (like units).
 series_toggle: true
 
-# Control the behavior of breadcrumbs for certain types of content.
+# Control the behavior of breadcrumbs for certain types of content .
 breadcrumbs:
   post:
     - label: general.home
