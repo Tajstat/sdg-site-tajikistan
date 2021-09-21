@@ -62,26 +62,23 @@
 .goal-tiles #goal-14,
 .goal-tiles .goal-icon-14 {
   background-color: transparent;
- 
-    filter: drop-shadow: 5px 5px 5px rgba(5, 5, 5, 0.3) !important;
+
 }
 .goal-tiles #goal-15,
 .goal-tiles .goal-icon-15 {
   background-color: transparent;
-      -webkit-filter: drop-shadow: 5px 5px 5px rgba(5, 5, 5, 0.3) !important;
+
  
 }
 .goal-tiles #goal-16,
 .goal-tiles .goal-icon-16 {
   background-color: transparent;
-      -webkit-filter: drop-shadow: 5px 5px 5px rgba(5, 5, 5, 0.3) !important;
-    filter: drop-shadow: 5px 5px 5px rgba(5, 5, 5, 0.3) !important;
+
 }
 .goal-tiles #goal-17,
 .goal-tiles .goal-icon-17 {
   background-color: transparent;
-      -webkit-filter: drop-shadow: 5px 5px 5px rgba(5, 5, 5, 0.3) ;
-    filter: drop-shadow: 5px 5px 5px rgba(5, 5, 5, 0.3) ;
+
 }
 .goal-tiles #goal-18,
 .goal-tiles .goal-icon-18 {
@@ -89,6 +86,5 @@
 }
 
   #main-content .goal-tiles .no-gutters img:not(#goal-18) {
-    -webkit-filter: drop-shadow: 5px 5px 5px rgba(5, 5, 5, 0.3) !important;
-    filter: drop-shadow: 5px 5px 5px rgba(5, 5, 5, 0.3) !important;
+
     }
