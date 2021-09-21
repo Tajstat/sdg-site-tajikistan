@@ -79,3 +79,7 @@
 .goal-tiles .goal-icon-18 {
   background-color: transparent;
 }
+
+  #main-content .goal-tiles .no-gutters img:not(#goal-18) {
+    -webkit-filter: drop-shadow: 5px 5px 5px rgba(5, 5, 5, 0.3);
+    }
