@@ -111,7 +111,7 @@ collections:
   goals:
     output: true
 
-# Menu
+# Menu 
 menu:
   # Use these to customise the main navigation.
   - path: /goals
