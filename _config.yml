@@ -197,7 +197,7 @@ custom_css:
 header_language_toggle: dropdown
 footer_language_toggle: links
 
-# Configure the header style.
+# Configure the header style. 
 header:
   include: header-menu-left-aligned.html
 
