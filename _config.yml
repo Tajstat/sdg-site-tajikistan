@@ -226,5 +226,5 @@ breadcrumbs:
 header:
   include: header-menu-left-aligned.html
 
-# Use an accessible color-set for charts. 
+# Use an accessible color-set for charts.  
 graph_color_set: accessible
