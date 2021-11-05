@@ -78,7 +78,7 @@ country:
 #  title: frontpage.intro_title
 #  description: frontpage.intro_body
   
-#Tajikistan data for Sustainable Development Goal indicators
+#Tajikistan data for Sustainable Development Goal indicators 
 frontpage_goals_grid:
   title: custom.frontpage_heading 
   description: custom.frontpage_instructions
