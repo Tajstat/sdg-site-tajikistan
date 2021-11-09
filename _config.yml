@@ -235,3 +235,17 @@ graph_color_set: accessible
 data_fields:
   series: SERIES
   units: UNIT_MEASURE
+
+
+
+
+logos:
+  - language: en
+    src: assets/img/en/SDG_logo.png
+    alt: my alt text
+  - language: ru
+    src: assets/img/ru/SDG_logo.png
+    alt: Символ логитип
+  - language: tg
+    src: assets/img/tg/SDG_logo.png
+    alt: Рамзи логотип
