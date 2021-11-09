@@ -241,11 +241,11 @@ data_fields:
 
 logos:
   - language: en
-    src: assets/img/en/SDG_logo.png
+    src: assets/img/SDG_logo_en.png
     alt: my alt text
   - language: ru
-    src: assets/img/ru/SDG_logo.png
+    src: assets/img/SDG_logo_ru.png
     alt: Символ логитип
   - language: tg
-    src: assets/img/tg/SDG_logo.png
+    src: assets/img/SDG_logo_tj.png
     alt: Рамзи логотип
