@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="tg" class="no-js">
+    <head>
+        <meta charset="utf-8">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js"></script>
+        <script crossorigin="anonymous" src="https://polyfill.io/v3/polyfill.min.js?features=Promise%2CArray.prototype.forEach%2CString.prototype.includes%2CURLSearchParams%2CCustomEvent%2CArray.prototype.includes%2CArray.prototype.filter%2CArray.prototype.some%2CArray.prototype.find%2CArray.prototype.reduce%2CObject.assign%2CArray.isArray%2CObject.values%2CArray.from%2CSet%2CArray.prototype.findIndex"></script>
+<script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/javascript-canvas-to-blob/3.15.0/js/canvas-to-blob.min.js"></script>
+
+        <script>
+// This is where we initialise any global variables, namespaced in "opensdg".
+var opensdg = {
+
+  // A base URL for asynchronous calls to SDG data.
+  remoteDataBaseUrl: 'https://tajstat.github.io/sdg-data-tajikistan/tg',
+
+  chartConfigAlterations: [],
+  // A hook which can be used to modify the configuration for Chart.js.
+  chartConfigAlter: function(callback) {
+    this.chartConfigAlterations.push(callback);
+  },
+
+  tableConfigAlterations: [],
+  // A hook which can be used to modify the configuration for Datatables.
+  tableConfigAlter: function(callback) {
+    this.tableConfigAlterations.push(callback);
+  },
+
+  // A hook which can be replaced to alter whether/how the values that are
+  // displayed on indicator tables/graphs get rounded.
+  dataRounding: function(value) {
+    // Alterations go here.
+    return value;
+  },
+
+  // A hook which can be used to alter the data before it is displayed on charts/tables.
+  dataDisplayAlterations: [],
+  dataDisplayAlter: function(callback) {
+    this.dataDisplayAlterations.push(callback);
+  },
+
+  language: 'tg',
+};
+
+// For backwards compatibility, some of these might need to be global.
+// @TODO: Remove these eventually.
+var remoteDataBaseUrl = opensdg.remoteDataBaseUrl;
+
+</script>
+
+        <script>
+// JavaScript container for translation data.
+var translations = {
+  //Javascript version of the "t" filter from jekyll-open-sdg-plugins.
+  t: function(key) {
+
+    if (!key || typeof key !== 'string') {
+      return '';
+    }
+
+    // The majority of uses of this function are to translate disaggregation
+    // data. To spare data providers of needing to enter "data." in front of
+    // their disaggregation data, we specifically look for that here.
+    if (typeof this.data === 'object' && this.data !== null && this.data[key]) {
+      return this.data[key];
+    }
+
+    var originalKey = key;
+    var drilled = this;
+    var levelsDrilled = 0;
+    var levels = key.split('.');
+
+    for (var level in levels) {
+      // If we have drilled down to soon, abort.
+      if (typeof drilled !== 'object') {
+        break;
+      }
+
+      if (levels[level] in drilled) {
+        drilled = drilled[levels[level]];
+        levelsDrilled += 1;
+      }
+    }
+
+    // If we didn't drill the right number of levels, return the original string.
+    if (levels.length != levelsDrilled) {
+      return originalKey;
+    }
+
+    // Otherwise we must have drilled all the way.
+    return drilled;
+  },
+};
+</script>
+
+        <!-- Basic Page Needs
+        ================================================== -->
+        <meta http-equiv="X-UA-Compatible" content="IE=edge"><!-- Mobile Specific Metas
+        ================================================== -->
+        <meta name="HandheldFriendly" content="True">
+        <meta name="MobileOptimized" content="320">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- Title and meta description
+        ================================================== -->
+
+        
+    <title>Ҳадаф 3 - Саломатӣ ва саломатии хуб - Нишондиҳандаҳо барои ҳадафҳои рушди устувор</title>
+
+
+
+        <meta name="description" content="">
+        <meta property="og:description" content="">
+        
+        <meta name="robots" content="noindex, nofollow">
+        
+        <link rel="canonical" href="/">
+
+        <!--[if IE 9]>
+        <script src="/sdg-site-tajikistan/assets/js/lib/classList.js"></script>
+        <![endif]-->
+
+        
+
+
+
+
+<link rel="shortcut icon" type="image/ico" href="/sdg-site-tajikistan/assets/img/favicons/favicon.ico">
+<link rel="icon" type="image/png" href="/sdg-site-tajikistan/assets/img/favicons/favicon.png">
+
+
+        
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" crossorigin="">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" crossorigin="">
+        <link rel="stylesheet" href="https://cdn.datatables.net/fixedcolumns/3.2.3/css/fixedColumns.dataTables.min.css" crossorigin="">
+        <link rel="stylesheet" href="/sdg-site-tajikistan/assets/css/style.css?v=20220210085740">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.4/dist/leaflet.css"
+          integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+          crossorigin=""/>
+        <link rel="stylesheet" href="https://cdn.rawgit.com/socib/Leaflet.TimeDimension/master/dist/leaflet.timedimension.control.min.css"  crossorigin=""/>
+        <link rel="stylesheet" href='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css'  crossorigin=""/>
+        <link rel="stylesheet" href="https://bowercdn.net/c/leaflet.zoomhome-latest/dist/leaflet.zoomhome.css"  crossorigin=""/>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-search@2.9.7/dist/leaflet-search.min.css" crossorigin="">
+        <link rel="stylesheet" href="https://cdn.kiprotect.com/klaro/v0.7/klaro.min.css" crossorigin=""/><link rel="stylesheet" href="/sdg-site-tajikistan/assets/css/custom.css?v=20220210085740">
+        
+
+        
+
+    </head>
+<body class="language-tg
+layout-goal-by-target-vertical
+">
+<!-- <div class="container"> -->
+
+
+<script>translations['header'] = {"alpha":"Алфа","default_contrast":"Контрасти пешфарз","disable_high_contrast":"Контрасти баландро хомӯш кунед","disclaimer":"Ин сайт дар ҳолати коркард аст. Мо <a href=\"mailto:%email_address\">фикру мулоҳизаҳои </a> шуморо қабул мекунем.","enable_high_contrast":"Контрасти баландро фаъол созед","high_contrast":"Контрасти баланд","skip_link":"Ба мундариҷаи асосӣ гузаред","tag_line":"17 Ҳадафҳо барои тағир додани ҷаҳони мо","toggle_menu":"Менюро иваз кунед. Барои васеъ ё хурдани меню клик кунед.","toggle_search":"Калиди ҷустуҷӯ. Барои васеъ ё кам кардани сатри ҷустуҷӯ клик кунед."};</script>
+
+<a class="sr-only sr-only-focusable" id="skiplink" href="#main-content" tabindex="0">Ба мундариҷаи асосӣ гузаред</a>
+<div id="disclaimer">
+  <div class="container">
+  <div class="disclaimer-alert">
+    <strong class="phase-tag">Алфа</strong>
+    
+    Ин сайт дар ҳолати коркард аст. Мо <a href="mailto:stat@tojikiston.com">фикру мулоҳизаҳои </a> шуморо қабул мекунем.
+  </div>
+</div>
+
+</div>
+
+<header role="banner" class="header-menu-left-aligned">
+  <div class="container">
+
+    <div class="logo-and-mobile-widgets">
+      <a class="navbar-brand" href="/sdg-site-tajikistan/tg/" id="home">
+    <img src="/sdg-site-tajikistan/assets/img/SDG_logo_tj.png" alt="Рамзи логотип" />
+</a>
+      <div class="mobile-widgets">
+    <ul id='accessibility-nav' class='contrast-switcher'>
+        
+
+    <li class="nav-link contrast contrast-default contrast-type-default">
+        <a title="Контрасти баландро хомӯш кунед"
+           aria-label="Контрасти баландро хомӯш кунед"
+           data-contrast-switch-to="default"
+           href="javascript:void(0)"
+           data-on="click"
+data-event-category="Accessibility"
+data-event-action="Change contrast setting"
+data-event-label="default"
+
+        >A</a>
+    </li>
+    <li class="nav-link contrast contrast-high contrast-type-default">
+        <a title="Контрасти баландро фаъол созед"
+           aria-label="Контрасти баландро фаъол созед"
+           data-contrast-switch-to="high"
+           href="javascript:void(0)"
+           data-on="click"
+data-event-category="Accessibility"
+data-event-action="Change contrast setting"
+data-event-label="high"
+
+        >A</a>
+    </li>
+
+
+    </ul><div class="language-toggle-mobile">
+        <div class="language-toggle-container">
+  
+  <div class="btn-group language-toggle-dropdown ">
+    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <span class="language-globe-in-dropdown"><i class="fa fa-globe language-toggle-globe-dropdown"></i></span><span class="language-name">Тоҷикӣ</span>
+      <span class="language-abbreviation">tg</span><i class="language-toggle-caret fa fa-chevron-down"></i></button>
+    <ul class="dropdown-menu"><li class="language-option-en">
+            <a href="/sdg-site-tajikistan/3/">
+              English
+            </a>
+          </li><li class="language-option-ru">
+            <a href="/sdg-site-tajikistan/ru/3/">
+              Pусский
+            </a>
+          </li></ul>
+  </div>
+</div>
+
+    </div></div>
+    </div>
+
+    <div class="search-and-desktop-widgets">
+      <div id="search" class="menu-target">
+  <form action="/sdg-site-tajikistan/tg/search/">
+    <label class="sr-only" for="indicator_search">Ҷустуҷӯ</label>
+    <input type="text" name="q" id="indicator_search" title="Ҷустуҷӯ" /><!--
+    --><button aria-label="Ҷустуҷӯ" id="search-btn" type="submit"><i class="fa fa-search" aria-hidden="false"></i></button>
+  </form>
+</div>
+
+      <div class="navbar navbar-default widgets-without-menu">
+        <ul class="nav navbar-nav contrast-switcher"><li class="language-toggle-menu-header">
+            
+
+
+
+
+
+  <div class="language-toggle-container">
+  
+  <div class="btn-group language-toggle-dropdown ">
+    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <span class="language-globe-in-dropdown"><i class="fa fa-globe language-toggle-globe-dropdown"></i></span><span class="language-name">Тоҷикӣ</span>
+      <span class="language-abbreviation">tg</span><i class="language-toggle-caret fa fa-chevron-down"></i></button>
+    <ul class="dropdown-menu"><li class="language-option-en">
+            <a href="/sdg-site-tajikistan/3/">
+              English
+            </a>
+          </li><li class="language-option-ru">
+            <a href="/sdg-site-tajikistan/ru/3/">
+              Pусский
+            </a>
+          </li></ul>
+  </div>
+</div>
+
+
+
+        </li>
+
+    <li class="nav-link contrast contrast-default contrast-type-default">
+        <a title="Контрасти баландро хомӯш кунед"
+           aria-label="Контрасти баландро хомӯш кунед"
+           data-contrast-switch-to="default"
+           href="javascript:void(0)"
+           data-on="click"
+data-event-category="Accessibility"
+data-event-action="Change contrast setting"
+data-event-label="default"
+
+        >A</a>
+    </li>
+    <li class="nav-link contrast contrast-high contrast-type-default">
+        <a title="Контрасти баландро фаъол созед"
+           aria-label="Контрасти баландро фаъол созед"
+           data-contrast-switch-to="high"
+           href="javascript:void(0)"
+           data-on="click"
+data-event-category="Accessibility"
+data-event-action="Change contrast setting"
+data-event-label="high"
+
+        >A</a>
+    </li>
+
+
+        </ul>
+      </div>
+    </div>
+
+    <div class="navbar navbar-default menu-without-widgets" id="main-nav">
+      <ul class="top-level">
+    <li id="menuToggle"
+        aria-label="Менюро иваз кунед. Барои васеъ ё хурдани меню клик кунед."
+        aria-haspopup="true">
+        <button data-target="menu-mobile" aria-expanded="false">Меню</button>
+        <ul class="nav navbar-nav menu-target contrast-switcher" id="menu-mobile"><li class="nav-link ">
+    <a href="/sdg-site-tajikistan/tg/goals">Ҳадафҳо</a>
+</li><li class="nav-link ">
+    <a href="/sdg-site-tajikistan/tg/reporting-status">Ҳолати ҳисоботӣ</a>
+</li><li class="nav-link ">
+    <a href="/sdg-site-tajikistan/tg/about">Дар бораи</a>
+</li><li class="nav-link ">
+    <a href="/sdg-site-tajikistan/tg/guidance">Дастур</a>
+</li><li class="nav-link ">
+    <a href="/sdg-site-tajikistan/tg/faq">Саволҳои зиёд такрормешуда</a>
+</li><li class="nav-link ">
+    <a href="/sdg-site-tajikistan/tg/news">Навсозиҳо</a>
+</li><li class="language-toggle-menu-header">
+    
+
+
+
+
+
+  <div class="language-toggle-container">
+  
+  <div class="btn-group language-toggle-dropdown ">
+    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <span class="language-globe-in-dropdown"><i class="fa fa-globe language-toggle-globe-dropdown"></i></span><span class="language-name">Тоҷикӣ</span>
+      <span class="language-abbreviation">tg</span><i class="language-toggle-caret fa fa-chevron-down"></i></button>
+    <ul class="dropdown-menu"><li class="language-option-en">
+            <a href="/sdg-site-tajikistan/3/">
+              English
+            </a>
+          </li><li class="language-option-ru">
+            <a href="/sdg-site-tajikistan/ru/3/">
+              Pусский
+            </a>
+          </li></ul>
+  </div>
+</div>
+
+
+
+</li>
+
+
+
+    <li class="nav-link contrast contrast-default contrast-type-default">
+        <a title="Контрасти баландро хомӯш кунед"
+           aria-label="Контрасти баландро хомӯш кунед"
+           data-contrast-switch-to="default"
+           href="javascript:void(0)"
+           data-on="click"
+data-event-category="Accessibility"
+data-event-action="Change contrast setting"
+data-event-label="default"
+
+        >A</a>
+    </li>
+    <li class="nav-link contrast contrast-high contrast-type-default">
+        <a title="Контрасти баландро фаъол созед"
+           aria-label="Контрасти баландро фаъол созед"
+           data-contrast-switch-to="high"
+           href="javascript:void(0)"
+           data-on="click"
+data-event-category="Accessibility"
+data-event-action="Change contrast setting"
+data-event-label="high"
+
+        >A</a>
+    </li>
+
+
+
+</ul>
+
+    </li>
+    <li id="searchToggle"
+        aria-label="Калиди ҷустуҷӯ. Барои васеъ ё кам кардани сатри ҷустуҷӯ клик кунед."
+        aria-haspopup="true">
+        <button data-target="search-mobile" aria-expanded="false">Ҷустуҷӯ</button>
+        <div id="search-mobile" class="menu-target">
+  <form action="/sdg-site-tajikistan/tg/search/">
+    <label class="sr-only" for="indicator_search-mobile">Ҷустуҷӯ</label>
+    <input type="text" name="q" id="indicator_search-mobile" title="Ҷустуҷӯ" /><!--
+    --><button aria-label="Ҷустуҷӯ" id="search-mobile-btn" type="submit"><i class="fa fa-search" aria-hidden="false"></i></button>
+  </form>
+</div>
+
+    </li>
+</ul>
+      <ul class="nav navbar-nav menu-target " id="menu"><li class="nav-link ">
+    <a href="/sdg-site-tajikistan/tg/goals">Ҳадафҳо</a>
+</li><li class="nav-link ">
+    <a href="/sdg-site-tajikistan/tg/reporting-status">Ҳолати ҳисоботӣ</a>
+</li><li class="nav-link ">
+    <a href="/sdg-site-tajikistan/tg/about">Дар бораи</a>
+</li><li class="nav-link ">
+    <a href="/sdg-site-tajikistan/tg/guidance">Дастур</a>
+</li><li class="nav-link ">
+    <a href="/sdg-site-tajikistan/tg/faq">Саволҳои зиёд такрормешуда</a>
+</li><li class="nav-link ">
+    <a href="/sdg-site-tajikistan/tg/news">Навсозиҳо</a>
+</li>
+
+</ul>
+
+    </div>
+
+  </div>
+
+</header>
+<div id="top" tabindex=-1></div>
+
+
+
+
+<div class="container">
+  <ol class="breadcrumb">
+  
+  <li><a href="/sdg-site-tajikistan/tg/">Хона</a></li>
+  <li><a href="/sdg-site-tajikistan/tg/goals">Ҳадафҳо</a></li>
+  
+  
+</ol>
+
+  
+</div>
+
+<div class="heading goal-banner goal-3">
+  <div class="container">
+    <div class="row">
+      <div class="col-xs-4 col-md-3 col-lg-2 goal-tiles">
+        <img src="https://tajstat.github.io/sdg-site-tajikistan/assets/img/goals/tg/3.png" alt="Саломатӣ ва саломатии хуб - Ҳадаф 3" id="goal-3" class="goal-icon-image goal-icon-image-" />
+      </div>
+      <div class="col-xs-8 col-md-9 col-lg-10">
+        <h1>
+          <span class="hidden-sm hidden-md hidden-lg">Ҳадаф 3: </span>Таъмини ҳаёти солим ва беҳбудии некӯаҳволии ҳама синну солҳо
+        </h1>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="main-content" class="container" role="main">
+
+  
+
+
+
+  <div class="container">
+    <h2>Ҳадафҳо ва нишондиҳандаҳо</h2>
+
+    
+    
+      
+      <div class="row no-gutters goal-target-and-indicators">
+        <h3 class="goal-target">
+          <span class="target-number"><span class="sr-only">Ҳадаф</span> 3.1</span>
+        </h3>
+        <span class="target-name">То соли 2030 коэффитсиенти фавти модарон дар саросари ҷаҳонро то камтар аз 70 ба 100,000 таваллуди нав коҳиш диҳед</span>
+        
+
+          
+          
+          
+
+          <div class="goal-indicator">
+            <h4>
+              <span class="indicator-number"><span class="sr-only">Нишондиҳанда</span> 3.1.1</span>
+            </h4>
+            
+            <span class="indicator-name"><a href="/sdg-site-tajikistan/tg/3-1-1">Таносуби фавти модарон</a></span>
+            <span class="sr-only">Статуси нишондиҳанда</span>
+            
+
+
+<span class="status complete">
+    <span class="status-inner">Ҳисобот дода шуд</span>
+</span>
+
+            
+    <span class="sr-only">Тегҳо</span>
+    <span class="tags">
+    
+    </span>
+
+
+            
+          </div>
+        
+
+          
+          
+          
+
+          <div class="goal-indicator">
+            <h4>
+              <span class="indicator-number"><span class="sr-only">Нишондиҳанда</span> 3.1.2</span>
+            </h4>
+            
+            <span class="indicator-name"><a href="/sdg-site-tajikistan/tg/3-1-2">Ҳиссаи таваллудҳо, ки дар он кормандони бомаҳорати соҳаи тандурустӣ иштирок мекунанд</a></span>
+            <span class="sr-only">Статуси нишондиҳанда</span>
+            
+
+
+<span class="status complete">
+    <span class="status-inner">Ҳисобот дода шуд</span>
+</span>
+
+            
+    <span class="sr-only">Тегҳо</span>
+    <span class="tags">
+    
+    </span>
+
+
+            
+          </div>
+        
+      </div>
+    
+      
+      <div class="row no-gutters goal-target-and-indicators">
+        <h3 class="goal-target">
+          <span class="target-number"><span class="sr-only">Ҳадаф</span> 3.2</span>
+        </h3>
+        <span class="target-name">То соли 2030 марги пешгиришавандаи кӯдакони навзод ва кӯдакони то 5-соларо хотима диҳед, бо ин ҳама кишварҳо мақсад доранд, ки фавти навзодонро ҳадди аққал то 12 ба 1000 таваллуди зинда ва фавти то-5 то ҳадди аққал то 25 ба 1000 зиндагӣ кам кунанд таваллуд</span>
+        
+
+          
+          
+          
+
+          <div class="goal-indicator">
+            <h4>
+              <span class="indicator-number"><span class="sr-only">Нишондиҳанда</span> 3.2.1</span>
+            </h4>
+            
+            <span class="indicator-name"><a href="/sdg-site-tajikistan/tg/3-2-1">Дар доираи ‐ панҷ сатҳи фавт</a></span>
+            <span class="sr-only">Статуси нишондиҳанда</span>
+            
+
+
+<span class="status complete">
+    <span class="status-inner">Ҳисобот дода шуд</span>
+</span>
+
+            
+    <span class="sr-only">Тегҳо</span>
+    <span class="tags">
+    
+    </span>
+
+
+            
+          </div>
+        
+
+          
+          
+          
+
+          <div class="goal-indicator">
+            <h4>
+              <span class="indicator-number"><span class="sr-only">Нишондиҳанда</span> 3.2.2</span>
+            </h4>
+            
+            <span class="indicator-name"><a href="/sdg-site-tajikistan/tg/3-2-2">Меъёри фавти навзод</a></span>
+            <span class="sr-only">Статуси нишондиҳанда</span>
+            
+
+
+<span class="status complete">
+    <span class="status-inner">Ҳисобот дода шуд</span>
+</span>
+
+            
+    <span class="sr-only">Тегҳо</span>
+    <span class="tags">
+    
+    </span>
+
+
+            
+          </div>
+        
+      </div>
+    
+      
+      <div class="row no-gutters goal-target-and-indicators">
+        <h3 class="goal-target">
+          <span class="target-number"><span class="sr-only">Ҳадаф</span> 3.3</span>
+        </h3>
+        <span class="target-name">То соли 2030 эпидемияҳои СПИД, сил, вараҷа ва бемориҳои сарфи назаршудаи тропикиро хотима диҳед ва бо гепатит, бемориҳои тавассути об гузаранда ва дигар бемориҳои гузаранда мубориза баред</span>
+        
+
+          
+          
+          
+
+          <div class="goal-indicator">
+            <h4>
+              <span class="indicator-number"><span class="sr-only">Нишондиҳанда</span> 3.3.1</span>
+            </h4>
+            
+            <span class="indicator-name"><a href="/sdg-site-tajikistan/tg/3-3-1">Шумораи сироятҳои нави ВНМО ба 1000 нафар аҳолии сироятнашуда аз рӯи ҷинс, синну сол ва аҳолии асосӣ</a></span>
+            <span class="sr-only">Статуси нишондиҳанда</span>
+            
+
+
+<span class="status complete">
+    <span class="status-inner">Ҳисобот дода шуд</span>
+</span>
+
+            
+    <span class="sr-only">Тегҳо</span>
+    <span class="tags">
+    
+    </span>
+
+
+            
+          </div>
+        
+
+          
+          
+          
+
+          <div class="goal-indicator">
+            <h4>
+              <span class="indicator-number"><span class="sr-only">Нишондиҳанда</span> 3.3.2</span>
+            </h4>
+            
+            <span class="indicator-name"><a href="/sdg-site-tajikistan/tg/3-3-2">Бемории сил ба 100 000 аҳолӣ</a></span>
+            <span class="sr-only">Статуси нишондиҳанда</span>
+            
+
+
+<span class="status complete">
+    <span class="status-inner">Ҳисобот дода шуд</span>
+</span>
+
+            
+    <span class="sr-only">Тегҳо</span>
+    <span class="tags">
+    
+    </span>
+
+
+            
+          </div>
+        
+
+          
+          
+          
+
+          <div class="goal-indicator">
+            <h4>
+              <span class="indicator-number"><span class="sr-only">Нишондиҳанда</span> 3.3.3</span>
+            </h4>
+            
+            <span class="indicator-name"><a href="/sdg-site-tajikistan/tg/3-3-3">Касалии вараҷа ба 1000 нафар аҳолӣ</a></span>
+            <span class="sr-only">Статуси нишондиҳанда</span>
+            
+
+
+<span class="status notstarted">
+    <span class="status-inner">Омӯхтани манбаъҳои маълумот</span>
+</span>
+
+            
+    <span class="sr-only">Тегҳо</span>
+    <span class="tags">
+    
+    </span>
+
+
+            
+          </div>
+        
+
+          
+          
+          
+
+          <div class="goal-indicator">
+            <h4>
+              <span class="indicator-number"><span class="sr-only">Нишондиҳанда</span> 3.3.4</span>
+            </h4>
+            
+            <span class="indicator-name"><a href="/sdg-site-tajikistan/tg/3-3-4">Касалии гепатит В ба ҳар 100,000 аҳолӣ</a></span>
+            <span class="sr-only">Статуси нишондиҳанда</span>
+            
+
+
+<span class="status notstarted">
+    <span class="status-inner">Омӯхтани манбаъҳои маълумот</span>
+</span>
+
+            
+    <span class="sr-only">Тегҳо</span>
+    <span class="tags">
+    
+    </span>
+
+
+            
+          </div>
+        
+
+          
+          
+          
+
+          <div class="goal-indicator">
+            <h4>
+              <span class="indicator-number"><span class="sr-only">Нишондиҳанда</span> 3.3.5</span>
+            </h4>
+            
+            <span class="indicator-name"><a href="/sdg-site-tajikistan/tg/3-3-5">Шумораи одамоне, ки дахолати зидди бемориҳои сарфи назаршудаи тропикиро талаб мекунанд</a></span>
+            <span class="sr-only">Статуси нишондиҳанда</span>
+            
+
+
+<span class="status notstarted">
+    <span class="status-inner">Омӯхтани манбаъҳои маълумот</span>
+</span>
+
+            
+    <span class="sr-only">Тегҳо</span>
+    <span class="tags">
+    
+    </span>
+
+
+            
+          </div>
+        
+      </div>
+    
+      
+      <div class="row no-gutters goal-target-and-indicators">
+        <h3 class="goal-target">
+          <span class="target-number"><span class="sr-only">Ҳадаф</span> 3.4</span>
+        </h3>
+        <span class="target-name">То соли 2030 фавти бармаҳал аз бемориҳои сироятиро тавассути пешгирӣ ва табобат коҳиш дода, солимии равонӣ ва некӯаҳволиро мусоидат мекунад</span>
+        
+
+          
+          
+          
+
+          <div class="goal-indicator">
+            <h4>
+              <span class="indicator-number"><span class="sr-only">Нишондиҳанда</span> 3.4.1</span>
+            </h4>
+            
+            <span class="indicator-name"><a href="/sdg-site-tajikistan/tg/3-4-1">Сатҳи фавт, ки ба бемориҳои дилу раг, саратон, диабет ё бемориҳои музмини респираторӣ мансуб аст</a></span>
+            <span class="sr-only">Статуси нишондиҳанда</span>
+            
+
+
+<span class="status complete">
+    <span class="status-inner">Ҳисобот дода шуд</span>
+</span>
+
+            
+    <span class="sr-only">Тегҳо</span>
+    <span class="tags">
+    
+    </span>
+
+
+            
+          </div>
+        
+
+          
+          
+          
+
+          <div class="goal-indicator">
+            <h4>
+              <span class="indicator-number"><span class="sr-only">Нишондиҳанда</span> 3.4.2</span>
+            </h4>
+            
+            <span class="indicator-name"><a href="/sdg-site-tajikistan/tg/3-4-2">Меъёри фавти худкушӣ</a></span>
+            <span class="sr-only">Статуси нишондиҳанда</span>
+            
+
+
+<span class="status complete">
+    <span class="status-inner">Ҳисобот дода шуд</span>
+</span>
+
+            
+    <span class="sr-only">Тегҳо</span>
+    <span class="tags">
+    
+    </span>
+
+
+            
+          </div>
+        
+      </div>
+    
+      
+      <div class="row no-gutters goal-target-and-indicators">
+        <h3 class="goal-target">
+          <span class="target-number"><span class="sr-only">Ҳадаф</span> 3.5</span>
+        </h3>
+        <span class="target-name">Пурзӯр кардани пешгирӣ ва табобати нашъамандӣ, аз ҷумла нашъамандӣ ва истифодаи зарарноки машрубот</span>
+        
+
+          
+          
+          
+
+          <div class="goal-indicator">
+            <h4>
+              <span class="indicator-number"><span class="sr-only">Нишондиҳанда</span> 3.5.1</span>
+            </h4>
+            
+            <span class="indicator-name"><a href="/sdg-site-tajikistan/tg/3-5-1">Фарогирии барномаҳои муолиҷа (фармакологӣ, психологию иҷтимоӣ ва барқарорсозӣ ва хизматрасонии баъд аз нигоҳубин) барои ихтилоли истифодаи моддаҳо</a></span>
+            <span class="sr-only">Статуси нишондиҳанда</span>
+            
+
+
+<span class="status complete">
+    <span class="status-inner">Ҳисобот дода шуд</span>
+</span>
+
+            
+    <span class="sr-only">Тегҳо</span>
+    <span class="tags">
+    
+    </span>
+
+
+            
+          </div>
+        
+
+          
+          
+          
+
+          <div class="goal-indicator">
+            <h4>
+              <span class="indicator-number"><span class="sr-only">Нишондиҳанда</span> 3.5.2</span>
+            </h4>
+            
+            <span class="indicator-name"><a href="/sdg-site-tajikistan/tg/3-5-2">Истифодаи зарарноки спиртӣ, ки мувофиқи заминаи миллӣ ҳамчун истеъмоли машрубот ба ҳар сари аҳолӣ (синни 15-сола ва калонтар) дар давоми соли тақвимӣ бо литрҳои спирти холис муайян шудааст</a></span>
+            <span class="sr-only">Статуси нишондиҳанда</span>
+            
+
+
+<span class="status notstarted">
+    <span class="status-inner">Омӯхтани манбаъҳои маълумот</span>
+</span>
+
+            
+    <span class="sr-only">Тегҳо</span>
+    <span class="tags">
+    
+    </span>
+
+
+            
+          </div>
+        
+      </div>
+    
+      
+      <div class="row no-gutters goal-target-and-indicators">
+        <h3 class="goal-target">
+          <span class="target-number"><span class="sr-only">Ҳадаф</span> 3.6</span>
+        </h3>
+        <span class="target-name">То соли 2020 шумораи фавтҳо ва ҷароҳатҳои ҷаҳонӣ аз садамаҳои нақлиётӣ ду маротиба кам карда шавад</span>
+        
+
+          
+          
+          
+
+          <div class="goal-indicator">
+            <h4>
+              <span class="indicator-number"><span class="sr-only">Нишондиҳанда</span> 3.6.1</span>
+            </h4>
+            
+            <span class="indicator-name"><a href="/sdg-site-tajikistan/tg/3-6-1">Сатҳи марг аз сабаби ҷароҳати нақлиёт дар роҳ</a></span>
+            <span class="sr-only">Статуси нишондиҳанда</span>
+            
+
+
+<span class="status complete">
+    <span class="status-inner">Ҳисобот дода шуд</span>
+</span>
+
+            
+    <span class="sr-only">Тегҳо</span>
+    <span class="tags">
+    
+    </span>
+
+
+            
+          </div>
+        
+      </div>
+    
+      
+      <div class="row no-gutters goal-target-and-indicators">
+        <h3 class="goal-target">
+          <span class="target-number"><span class="sr-only">Ҳадаф</span> 3.7</span>
+        </h3>
+        <span class="target-name">То соли 2030, дастрасии ҳамаҷониба ба хидматрасонии тиббии ҷинсӣ ва репродуктивӣ, аз ҷумла барои банақшагирии оила, маълумот ва таълим ва ҳамгироии солимии репродуктивиро ба стратегияҳо ва барномаҳои миллӣ таъмин намоед</span>
+        
+
+          
+          
+          
+
+          <div class="goal-indicator">
+            <h4>
+              <span class="indicator-number"><span class="sr-only">Нишондиҳанда</span> 3.7.1</span>
+            </h4>
+            
+            <span class="indicator-name"><a href="/sdg-site-tajikistan/tg/3-7-1">Ҳиссаи занони синни репродуктивӣ (синни 15-49 сола), ки ниёзҳои худро ба танзими оила бо усулҳои муосир қонеъ мекунанд</a></span>
+            <span class="sr-only">Статуси нишондиҳанда</span>
+            
+
+
+<span class="status complete">
+    <span class="status-inner">Ҳисобот дода шуд</span>
+</span>
+
+            
+    <span class="sr-only">Тегҳо</span>
+    <span class="tags">
+    
+    </span>
+
+
+            
+          </div>
+        
+
+          
+          
+          
+
+          <div class="goal-indicator">
+            <h4>
+              <span class="indicator-number"><span class="sr-only">Нишондиҳанда</span> 3.7.2</span>
+            </h4>
+            
+            <span class="indicator-name"><a href="/sdg-site-tajikistan/tg/3-7-2">Сатҳи таваллуди наврасон (10-14 сола; 15-19 сола) ба 1000 зан дар ин гурӯҳи синну сол</a></span>
+            <span class="sr-only">Статуси нишондиҳанда</span>
+            
+
+
+<span class="status complete">
+    <span class="status-inner">Ҳисобот дода шуд</span>
+</span>
+
+            
+    <span class="sr-only">Тегҳо</span>
+    <span class="tags">
+    
+    </span>
+
+
+            
+          </div>
+        
+      </div>
+    
+      
+      <div class="row no-gutters goal-target-and-indicators">
+        <h3 class="goal-target">
+          <span class="target-number"><span class="sr-only">Ҳадаф</span> 3.8</span>
+        </h3>
+        <span class="target-name">Ноил шудан ба фарогирии умумиҷаҳонии тандурустӣ, аз ҷумла ҳифзи хатари молиявӣ, дастрасӣ ба хидматрасонии босифати тиббӣ ва дастрасӣ ба доруҳо ва ваксинаҳои бехатар, самаранок, босифат ва дастрас барои ҳама</span>
+        
+
+          
+          
+          
+
+          <div class="goal-indicator">
+            <h4>
+              <span class="indicator-number"><span class="sr-only">Нишондиҳанда</span> 3.8.1</span>
+            </h4>
+            
+            <span class="indicator-name"><a href="/sdg-site-tajikistan/tg/3-8-1">Фарогирии хадамоти тиббии зарурӣ (ҳамчун фарогирии миёнаи хидматҳои зарурӣ дар асоси дахолати микроэлементхо, ки репродуктивӣ, модарон, кӯдакони навзод ва кӯдакон, бемориҳои сироятӣ, бемориҳои сироятӣ ва қобилияти хидматрасонӣ ва дастрасиро дар байни аҳолии умумӣ ва аз ҳама камбизоат муайян мекунанд )</a></span>
+            <span class="sr-only">Статуси нишондиҳанда</span>
+            
+
+
+<span class="status notstarted">
+    <span class="status-inner">Омӯхтани манбаъҳои маълумот</span>
+</span>
+
+            
+    <span class="sr-only">Тегҳо</span>
+    <span class="tags">
+    
+    </span>
+
+
+            
+          </div>
+        
+
+          
+          
+          
+
+          <div class="goal-indicator">
+            <h4>
+              <span class="indicator-number"><span class="sr-only">Нишондиҳанда</span> 3.8.2</span>
+            </h4>
+            
+            <span class="indicator-name"><a href="/sdg-site-tajikistan/tg/3-8-2">Ҳиссаи аҳолии дорои хароҷоти калони хонаводаҳо ба тандурустӣ ҳамчун ҳиссаи хароҷоти умумӣ ё даромади хонаводаҳо</a></span>
+            <span class="sr-only">Статуси нишондиҳанда</span>
+            
+
+
+<span class="status notstarted">
+    <span class="status-inner">Омӯхтани манбаъҳои маълумот</span>
+</span>
+
+            
+    <span class="sr-only">Тегҳо</span>
+    <span class="tags">
+    
+    </span>
+
+
+            
+          </div>
+        
+      </div>
+    
+      
+      <div class="row no-gutters goal-target-and-indicators">
+        <h3 class="goal-target">
+          <span class="target-number"><span class="sr-only">Ҳадаф</span> 3.9</span>
+        </h3>
+        <span class="target-name">То соли 2030 шумораи фавтҳо ва бемориҳо аз таъсири кимиёвии хатарнок ва ифлосшавии обу хок ва ифлосшавӣ ба таври назаррас коҳиш дода шавад</span>
+        
+
+          
+          
+          
+
+          <div class="goal-indicator">
+            <h4>
+              <span class="indicator-number"><span class="sr-only">Нишондиҳанда</span> 3.9.1</span>
+            </h4>
+            
+            <span class="indicator-name"><a href="/sdg-site-tajikistan/tg/3-9-1">Сатҳи фавт ба ифлосшавии ҳавои хонавода ва атроф вобаста аст</a></span>
+            <span class="sr-only">Статуси нишондиҳанда</span>
+            
+
+
+<span class="status notstarted">
+    <span class="status-inner">Омӯхтани манбаъҳои маълумот</span>
+</span>
+
+            
+    <span class="sr-only">Тегҳо</span>
+    <span class="tags">
+    
+    </span>
+
+
+            
+          </div>
+        
+
+          
+          
+          
+
+          <div class="goal-indicator">
+            <h4>
+              <span class="indicator-number"><span class="sr-only">Нишондиҳанда</span> 3.9.2</span>
+            </h4>
+            
+            <span class="indicator-name"><a href="/sdg-site-tajikistan/tg/3-9-2">Сатҳи фавт, ки ба оби хатарнок, санитарияи хатарнок ва риоя накардани гигиена вобаста аст (таъсири манфии об, санитария ва гигиена барои ҳама (WASH))</a></span>
+            <span class="sr-only">Статуси нишондиҳанда</span>
+            
+
+
+<span class="status notstarted">
+    <span class="status-inner">Омӯхтани манбаъҳои маълумот</span>
+</span>
+
+            
+    <span class="sr-only">Тегҳо</span>
+    <span class="tags">
+    
+    </span>
+
+
+            
+          </div>
+        
+
+          
+          
+          
+
+          <div class="goal-indicator">
+            <h4>
+              <span class="indicator-number"><span class="sr-only">Нишондиҳанда</span> 3.9.3</span>
+            </h4>
+            
+            <span class="indicator-name"><a href="/sdg-site-tajikistan/tg/3-9-3">Сатҳи фавт, ки ба заҳролудшавии тасодуфӣ марбут аст</a></span>
+            <span class="sr-only">Статуси нишондиҳанда</span>
+            
+
+
+<span class="status notstarted">
+    <span class="status-inner">Омӯхтани манбаъҳои маълумот</span>
+</span>
+
+            
+    <span class="sr-only">Тегҳо</span>
+    <span class="tags">
+    
+    </span>
+
+
+            
+          </div>
+        
+      </div>
+    
+      
+      <div class="row no-gutters goal-target-and-indicators">
+        <h3 class="goal-target">
+          <span class="target-number"><span class="sr-only">Ҳадаф</span> 3.a</span>
+        </h3>
+        <span class="target-name">Татбиқи Конвенсияи чорчӯбаи Созмони Умумиҷаҳонии Тандурустӣ оид ба мубориза бо тамоку дар ҳама кишварҳо, ба қадри зарурӣ</span>
+        
+
+          
+          
+          
+
+          <div class="goal-indicator">
+            <h4>
+              <span class="indicator-number"><span class="sr-only">Нишондиҳанда</span> 3.a.1</span>
+            </h4>
+            
+            <span class="indicator-name"><a href="/sdg-site-tajikistan/tg/3-a-1">Паҳншавии аз рӯи синну сол муқарраршудаи истифодаи тамоку дар байни шахсони синнашон аз 15 сола боло</a></span>
+            <span class="sr-only">Статуси нишондиҳанда</span>
+            
+
+
+<span class="status complete">
+    <span class="status-inner">Ҳисобот дода шуд</span>
+</span>
+
+            
+    <span class="sr-only">Тегҳо</span>
+    <span class="tags">
+    
+    </span>
+
+
+            
+          </div>
+        
+      </div>
+    
+      
+      <div class="row no-gutters goal-target-and-indicators">
+        <h3 class="goal-target">
+          <span class="target-number"><span class="sr-only">Ҳадаф</span> 3.b</span>
+        </h3>
+        <span class="target-name">Дастгирии таҳқиқот ва таҳияи ваксинаҳо ва доруҳо барои бемориҳои гузаранда ва ғайри сироятӣ, ки пеш аз ҳама ба кишварҳои рӯ ба тараққӣ мерасанд, дастрасӣ ба доруворӣ ва ваксинаҳои арзон, мутобиқи Эъломияи Доҳа оид ба Созишномаи TRIPS ва саломатии аҳолӣ, ки ҳуқуқро тасдиқ мекунад кишварҳои тараққикунанда барои пурра истифода бурдани муқаррароти Созишнома дар бораи ҷанбаҳои марбут ба тиҷорати ҳуқуқи моликияти зеҳнӣ дар самти ҳифзи саломатии аҳолӣ ва алалхусус, дастрасӣ ба доруворӣ барои ҳама</span>
+        
+
+          
+          
+          
+
+          <div class="goal-indicator">
+            <h4>
+              <span class="indicator-number"><span class="sr-only">Нишондиҳанда</span> 3.b.1</span>
+            </h4>
+            
+            <span class="indicator-name"><a href="/sdg-site-tajikistan/tg/3-b-1">Таносуби аҳолии мақсаднок бо тамоми ваксинаҳое, ки ба барномаи миллии онҳо дохил карда шудаанд, фаро гирифта шудааст</a></span>
+            <span class="sr-only">Статуси нишондиҳанда</span>
+            
+
+
+<span class="status complete">
+    <span class="status-inner">Ҳисобот дода шуд</span>
+</span>
+
+            
+    <span class="sr-only">Тегҳо</span>
+    <span class="tags">
+    
+    </span>
+
+
+            
+          </div>
+        
+
+          
+          
+          
+
+          <div class="goal-indicator">
+            <h4>
+              <span class="indicator-number"><span class="sr-only">Нишондиҳанда</span> 3.b.2</span>
+            </h4>
+            
+            <span class="indicator-name"><a href="/sdg-site-tajikistan/tg/3-b-2">Кӯмаки умумии холиси расмии рушд ба таҳқиқоти тиббӣ ва бахшҳои тандурустӣ</a></span>
+            <span class="sr-only">Статуси нишондиҳанда</span>
+            
+
+
+<span class="status notstarted">
+    <span class="status-inner">Омӯхтани манбаъҳои маълумот</span>
+</span>
+
+            
+    <span class="sr-only">Тегҳо</span>
+    <span class="tags">
+    
+    </span>
+
+
+            
+          </div>
+        
+
+          
+          
+          
+
+          <div class="goal-indicator">
+            <h4>
+              <span class="indicator-number"><span class="sr-only">Нишондиҳанда</span> 3.b.3</span>
+            </h4>
+            
+            <span class="indicator-name"><a href="/sdg-site-tajikistan/tg/3-b-3">Ҳиссаи муассисаҳои тандурустӣ, ки маҷмӯи асосии дорувориҳои зарурии муҳимро дар асоси устувор ва дастрас доранд</a></span>
+            <span class="sr-only">Статуси нишондиҳанда</span>
+            
+
+
+<span class="status notstarted">
+    <span class="status-inner">Омӯхтани манбаъҳои маълумот</span>
+</span>
+
+            
+    <span class="sr-only">Тегҳо</span>
+    <span class="tags">
+    
+    </span>
+
+
+            
+          </div>
+        
+      </div>
+    
+      
+      <div class="row no-gutters goal-target-and-indicators">
+        <h3 class="goal-target">
+          <span class="target-number"><span class="sr-only">Ҳадаф</span> 3.c</span>
+        </h3>
+        <span class="target-name">Маблағгузории соҳаи тандурустӣ ва ҷалб, рушд, омӯзиш ва нигоҳдории қувваи корӣ дар соҳаи тандурустӣ дар кишварҳои рӯ ба тараққӣ, хусусан дар кишварҳои сусттараққикарда ва давлатҳои ҷазираи хурд</span>
+        
+
+          
+          
+          
+
+          <div class="goal-indicator">
+            <h4>
+              <span class="indicator-number"><span class="sr-only">Нишондиҳанда</span> 3.c.1</span>
+            </h4>
+            
+            <span class="indicator-name"><a href="/sdg-site-tajikistan/tg/3-c-1">Зичии тақсимоти кормандони соҳаи тандурустӣ</a></span>
+            <span class="sr-only">Статуси нишондиҳанда</span>
+            
+
+
+<span class="status complete">
+    <span class="status-inner">Ҳисобот дода шуд</span>
+</span>
+
+            
+    <span class="sr-only">Тегҳо</span>
+    <span class="tags">
+    
+    </span>
+
+
+            
+          </div>
+        
+      </div>
+    
+      
+      <div class="row no-gutters goal-target-and-indicators">
+        <h3 class="goal-target">
+          <span class="target-number"><span class="sr-only">Ҳадаф</span> 3.d</span>
+        </h3>
+        <span class="target-name">Тақвият додани иқтидори ҳама кишварҳо, алахусус кишварҳои рӯ ба тараққӣ, барои огоҳии бармаҳал, коҳиш додани хатар ва идоракунии хатарҳои миллӣ ва ҷаҳонӣ</span>
+        
+
+          
+          
+          
+
+          <div class="goal-indicator">
+            <h4>
+              <span class="indicator-number"><span class="sr-only">Нишондиҳанда</span> 3.d.1</span>
+            </h4>
+            
+            <span class="indicator-name"><a href="/sdg-site-tajikistan/tg/3-d-1">Иқтидор ва омодагии фавқулодда дар соҳаи тандурустӣ (IHR)</a></span>
+            <span class="sr-only">Статуси нишондиҳанда</span>
+            
+
+
+<span class="status notstarted">
+    <span class="status-inner">Омӯхтани манбаъҳои маълумот</span>
+</span>
+
+            
+    <span class="sr-only">Тегҳо</span>
+    <span class="tags">
+    
+    </span>
+
+
+            
+          </div>
+        
+
+          
+          
+          
+
+          <div class="goal-indicator">
+            <h4>
+              <span class="indicator-number"><span class="sr-only">Нишондиҳанда</span> 3.d.2</span>
+            </h4>
+            
+            <span class="indicator-name"><a href="/sdg-site-tajikistan/tg/3-d-2">Фоизи сироятҳои ҷараёни хун аз ҳисоби организмҳои интихобшудаи ба микробҳо муқовиматшуда</a></span>
+            <span class="sr-only">Статуси нишондиҳанда</span>
+            
+
+
+<span class="status notstarted">
+    <span class="status-inner">Омӯхтани манбаъҳои маълумот</span>
+</span>
+
+            
+    <span class="sr-only">Тегҳо</span>
+    <span class="tags">
+    
+    </span>
+
+
+            
+          </div>
+        
+      </div>
+    
+  </div>
+</div>
+
+<footer role="contentinfo">
+  <div class="container">
+    <div class="row">
+      <div class="col-xs-12">
+        <div id="footerLinks">
+          <ul>
+            <li><a href="https://open-sdg.org">Бо истифода аз SDG Open сохта шудааст</a></li>
+            
+              <li>
+                
+                  <a href="mailto:stat@tojikiston.com" target="_blank">Бо мо тамос гиред</a>
+                
+                </li>
+              <li>
+                <a href="/sdg-site-tajikistan/tg/about/cookies-and-privacy/">Кукиҳо</a>
+                
+                </li>
+              
+            
+            <li class="language-toggle-menu-footer">
+              
+
+
+
+
+
+  <div class="language-toggle-container">
+  <i class="fa fa-globe language-toggle-globe-links"></i>
+  <ul class="language-toggle-links"><li class="language-option-en">
+      <a class="language-toggle-link" href="/sdg-site-tajikistan/3/">English</a>
+    </li><li class="language-option-ru">
+      <a class="language-toggle-link" href="/sdg-site-tajikistan/ru/3/">Pусский</a>
+    </li><li class="language-option-tg">
+      <span class="language-toggle-active-language">Тоҷикӣ</span>
+    </li></ul>
+</div>
+
+
+
+            </li></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="//cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+<script src="//cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js"></script>
+<script src="//cdn.datatables.net/fixedcolumns/3.2.3/js/dataTables.fixedColumns.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.20/lodash.min.js" integrity="sha512-90vH1Z83AJY9DmlWa8WkjkV79yfS2n2Oxhsi2dZbIv0nC4E6m5AbH8Nh156kkM7JePmqD6tcZsfad1ueoaovww==" crossorigin="anonymous"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/patternomaly@1.3.2/dist/patternomaly.js"></script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/autotrack/2.4.1/autotrack.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.0.0-rc.3/dist/html2canvas.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.2/dist/FileSaver.min.js"></script>
+
+
+
+
+
+
+
+<script>translations['general'] = translations['general'] || {};
+    translations['general']['hide'] = 'пинҳон кардан';</script>
+
+<script>translations['search'] = translations['search'] || {};
+    translations['search']['search'] = 'Ҷустуҷӯ';</script>
+
+<script src='/sdg-site-tajikistan/assets/js/sdg.js?v=20220210085740'></script>
+
+
+    
+    
+    <script src="/sdg-site-tajikistan/assets/js/custom.js?v=20220210085740"></script><script>
+$(function() {
+    if($('#indicatorData').length) {
+      var domData = $('#indicatorData').data();
+
+      if (domData.showdata) {
+
+        $('.async-loading').each(function(i, obj) {
+            $(obj).append($('<img />').attr('src', $(obj).data('img')).attr('alt', translations.indicator.loading));
+        });
+
+        var remoteUrl = '/comb/' + domData.id + '.json';
+        if (opensdg.remoteDataBaseUrl !== '/') {
+          remoteUrl = opensdg.remoteDataBaseUrl + remoteUrl;
+        }
+
+        $.ajax({
+          url: remoteUrl,
+          success: function(res) {
+
+            $('.async-loading').remove();
+            $('.async-loaded').show();
+
+            var model = new indicatorModel({
+              data: res.data,
+              edgesData: res.edges,
+              showMap: domData.showmap,
+              country: domData.country,
+              indicatorId: domData.indicatorid,
+              shortIndicatorId: domData.id,
+              chartTitle: domData.charttitle,
+              chartTitles: domData.charttitles,
+              measurementUnit: domData.measurementunit,
+              xAxisLabel: domData.xaxislabel,
+              showData: domData.showdata,
+              graphType: domData.graphtype,
+              startValues: domData.startvalues,
+              graphLimits: domData.graphlimits,
+              stackedDisaggregation: domData.stackeddisaggregation,
+              graphAnnotations: domData.graphannotations,
+              graphTargetLines: domData.graphtargetlines,
+              graphSeriesBreaks: domData.graphseriesbreaks,
+              indicatorDownloads: domData.indicatordownloads,
+              dataSchema: domData.dataschema,
+              compositeBreakdownLabel: domData.compositebreakdownlabel,
+              precision: domData.precision,
+            }),
+            view  = new indicatorView(model, {
+              rootElement: '#indicatorData',
+              legendElement: '#plotLegend',
+              decimalSeparator: '',
+              maxChartHeight: 420,
+              tableColumnDefs: [
+                { maxCharCount: 25 }, // nowrap
+                { maxCharCount: 35, width: 200 },
+                { maxCharCount: Infinity, width: 250 }
+              ]
+            }),
+            controller = new indicatorController(model, view);
+            controller.initialise();
+          }
+        });
+      }
+    }
+
+    var switcher = new accessibilitySwitcher();
+
+
+});
+</script>
+
+
+</body>
+</html>
+
