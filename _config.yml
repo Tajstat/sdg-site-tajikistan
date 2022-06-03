@@ -12,7 +12,7 @@ baseurl: "/sdg-site-tajikistan"
 remote_data_prefix: "https://tajstat.github.io/sdg-data-tajikistan/"
 # In the next few items, replace "open-sdg" with the name of your GitHub
 # organization, and "open-sdg-data-starter" with the name of your data repository.
-# URL for the "Edit Data" button on indicators.
+# URL for the "Edit Data" button on indicators. 
 data_edit_url: http://prose.io/#tajstat/sdg-site-tajikistan/edit/develop/data/indicator_[id].csv
 # URL for the "Edit Metadata" button on indicators.
 metadata_edit_url: http://prose.io/#tajstat/sdg-site-tajikistan/edit/develop/meta/[id].md
