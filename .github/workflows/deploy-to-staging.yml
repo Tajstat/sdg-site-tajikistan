@@ -8,6 +8,7 @@ on:
     - cron: '10 0 * * *'
   repository_dispatch:
     types: rebuild-staging
+  workflow_dispatch:
 
 jobs:
   build:
@@ -19,10 +20,9 @@ jobs:
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: 2.7
+        ruby-version: '2.7'
     - name: Build the site
       run: |
-        gem install bundler
         bundle config path vendor/bundle
         bundle install
         bundle exec jekyll build
